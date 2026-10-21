@@ -6,16 +6,57 @@ FROM ${BASE}
 
 COPY --from=mlocati/php-extension-installer:latest /usr/bin/install-php-extensions /usr/local/bin/
 
-RUN install-php-extensions \
-      pdo_mysql mysqli gd intl zip exif bcmath opcache \
-      redis apcu igbinary msgpack imagick
+# pecl.php.net is unreachable from this network, so the PECL extensions are
+# compiled from their GitHub tags. Explicit steps: a shell function hid the
+# failing command behind redirects.
+RUN set -eux; \
+    apk add --no-cache --virtual .extbuild $PHPIZE_DEPS imagemagick-dev libc-dev \
+ && mkdir -p /tmp/b/apcu \
+ && wget -qO- https://github.com/krakjoe/apcu/archive/refs/tags/v5.1.28.tar.gz | tar xz -C /tmp/b/apcu --strip-components=1 \
+ && cd /tmp/b/apcu \
+ && phpize \
+ && ./configure --with-php-config=/usr/local/bin/php-config --enable-apcu \
+ && make -j"$(nproc)" \
+ && make install \
+ && docker-php-ext-enable apcu \
+ && cd / && rm -rf /tmp/b/apcu \
+ && mkdir -p /tmp/b/redis \
+ && wget -qO- https://github.com/phpredis/phpredis/archive/refs/tags/6.3.0.tar.gz | tar xz -C /tmp/b/redis --strip-components=1 \
+ && cd /tmp/b/redis \
+ && phpize \
+ && ./configure --with-php-config=/usr/local/bin/php-config \
+ && make -j"$(nproc)" \
+ && make install \
+ && docker-php-ext-enable redis \
+ && cd / && rm -rf /tmp/b/redis \
+ && mkdir -p /tmp/b/msgpack \
+ && wget -qO- https://github.com/msgpack/msgpack-php/archive/refs/tags/v3.0.1.tar.gz | tar xz -C /tmp/b/msgpack --strip-components=1 \
+ && cd /tmp/b/msgpack \
+ && phpize \
+ && ./configure --with-php-config=/usr/local/bin/php-config \
+ && make -j"$(nproc)" \
+ && make install \
+ && docker-php-ext-enable msgpack \
+ && cd / && rm -rf /tmp/b/msgpack \
+ && mkdir -p /tmp/b/imagick \
+ && wget -qO- https://github.com/Imagick/imagick/archive/refs/tags/3.8.1.tar.gz | tar xz -C /tmp/b/imagick --strip-components=1 \
+ && cd /tmp/b/imagick \
+ && phpize \
+ && ./configure --with-php-config=/usr/local/bin/php-config --with-imagick \
+ && make -j"$(nproc)" \
+ && make install \
+ && docker-php-ext-enable imagick \
+ && cd / && rm -rf /tmp/b/imagick \
+ && apk del .extbuild \
+ && php -m | tr '\n' ' '
 
-# wp-cli: the fleet's ofelia cron runs `wp cron event run --due-now`
+RUN install-php-extensions pdo_mysql mysqli gd intl zip exif bcmath opcache
+
+# wp-cli: cron runners and the panel call `wp cron event run`
 RUN wget -qO /usr/local/bin/wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
- && chmod +x /usr/local/bin/wp-cli.phar \
  && printf '#!/bin/sh\nexec php -d error_reporting="E_ALL & ~E_DEPRECATED" /usr/local/bin/wp-cli.phar "$@"\n' > /usr/local/bin/wp \
- && chmod +x /usr/local/bin/wp \
- && wp --info --allow-root 2>/dev/null | head -2
+ && chmod +x /usr/local/bin/wp /usr/local/bin/wp-cli.phar \
+ && wp --info --allow-root >/dev/null && echo wp-cli-ok
 
 # The fleet mounts each site's pool config as zz-docker.conf, but the image's own
 # www.conf (listen = 9000) wins the merge, so nginx never finds the socket.
