@@ -1,0 +1,21 @@
+# Extension-only build on top of the current official PHP image (no core compile).
+# Ships the module set WordPress actually relies on, plus the system binaries those
+# modules shell out to (Imagick needs Ghostscript for PDF/PS previews).
+ARG BASE=php:8.5-fpm-alpine
+FROM ${BASE}
+
+RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
+      libjpeg-turbo-dev libpng-dev freetype-dev libwebp-dev libzip-dev icu-dev \
+      oniguruma-dev libxml2-dev imagemagick-dev \
+ && docker-php-ext-install -j"$(nproc)" pdo_mysql mysqli gd intl zip exif bcmath opcache \
+ && pecl install redis apcu igbinary msgpack imagick \
+ && docker-php-ext-enable redis apcu igbinary msgpack imagick \
+ && apk del .build-deps
+
+# runtime tools the modules call: ghostscript backs Imagick's PDF/PS delegate
+RUN apk add --no-cache ghostscript imagemagick libjpeg-turbo freetype libpng libwebp \
+      libzip icu-libs libxml2 oniguruma \
+ && gs --version
+
+RUN php -r 'echo "BUILT " . PHP_VERSION . "\n";' \
+ && php -m | tr '\n' ' '

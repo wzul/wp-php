@@ -34,14 +34,26 @@ php.net, so the fix is available as soon as the source is.
 
 Pin the full version in production; the minor tag moves with patch releases.
 
-## Extensions
+## What's inside
 
-Compiled in: `pdo_mysql mysqli pdo_pgsql pdo_sqlite gd intl zip exif bcmath opcache
-soap sockets sodium ldap gettext gmp`
-via PECL: `redis apcu igbinary msgpack imagick`
+PHP extensions — the set WordPress core and the common plugin stack actually use:
 
-That covers WordPress core plus the usual cache/image plugins. Anything else is a
-one-line addition in the Dockerfile.
+| group | modules |
+|---|---|
+| database | `pdo_mysql` `mysqli` `pdo_pgsql` `pdo_sqlite` `sqlite3` |
+| media | `gd` (jpeg/png/webp/freetype) `imagick` `exif` |
+| caching | `opcache` `redis` `apcu` `igbinary` `msgpack` |
+| core/web | `mbstring` `intl` `zip` `curl` `openssl` `xml` `xsl` `soap` `sockets` `fileinfo` `bcmath` `sodium` |
+
+System binaries the modules shell out to:
+
+- **`ghostscript`** — Imagick's PDF/PS delegate, needed for PDF previews and
+  thumbnail generation
+- `imagemagick` CLI, `libjpeg-turbo`, `freetype`, `libpng`, `libwebp`, `libzip`,
+  `icu-libs`, `libxml2`, `oniguruma`
+
+Anything missing is a one-line addition in the Dockerfile — open an issue with the
+extension name and the plugin that needs it.
 
 ## Use with WordPress
 
