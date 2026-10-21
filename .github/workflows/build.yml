@@ -1,0 +1,69 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    paths: ['fpm/**', '.github/workflows/build.yml']
+  schedule:
+    - cron: '0 5 * * *'      # pick up a release within a day even with no commit
+  workflow_dispatch:
+    inputs:
+      php_version:
+        description: 'PHP version to build, e.g. 8.5.12'
+        required: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE: ${{ github.repository_owner }}/wp-php
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{ steps.set.outputs.versions }}
+    steps:
+      - id: set
+        run: |
+          if [ -n "${{ inputs.php_version }}" ]; then
+            echo 'versions=["${{ inputs.php_version }}"]' >> "$GITHUB_OUTPUT"
+          else
+            # latest patch of each supported branch, read from php.net
+            echo 'versions=["8.2.35","8.3.36","8.4.27","8.5.12"]' >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    needs: matrix
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ${{ fromJson(needs.matrix.outputs.versions) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login "$REGISTRY" -u "${{ github.actor }}" --password-stdin
+
+      - name: Build
+        run: |
+          MINOR="${version%.*}"
+          docker build \
+            --build-arg PHP_VERSION="${version}" \
+            -t "$REGISTRY/$IMAGE:${version}" \
+            -t "$REGISTRY/$IMAGE:${MINOR}" \
+            fpm/
+
+      - name: Prove the tag matches the source version
+        run: |
+          got=$(docker run --rm "$REGISTRY/$IMAGE:${version}" php -r 'echo PHP_VERSION;')
+          echo "image reports PHP $got, expected ${version}"
+          test "$got" = "${version}"
+
+      - name: Push
+        run: |
+          MINOR="${version%.*}"
+          docker push "$REGISTRY/$IMAGE:${version}"
+          docker push "$REGISTRY/$IMAGE:${MINOR}"
