@@ -11,7 +11,7 @@ RUN install-php-extensions \
       redis apcu igbinary msgpack imagick
 
 # ghostscript backs Imagick's PDF/PS delegate (WordPress PDF previews)
-RUN apk add --no-cache ghostscript imagemagick \
+RUN apk add --no-cache ghostscript imagemagick msmtp \
  && gs --version \
  && php -r 'echo "BUILT " . PHP_VERSION . "\n";' \
  && php -m | tr '\n' ' '

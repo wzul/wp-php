@@ -1,17 +1,15 @@
-# Patched PHP-FPM for the flyops fleet.
-# Upstream images lag the security release (the PHP2Shell fix shipped in source
-# only), so the core is rebuilt from the official tarball at the same minor
-# version: module ABI is unchanged, extensions compile normally.
+# Patched PHP-FPM for the flyops fleet, built from the official php.net tarball.
+# Used while Docker Hub's own image for a security release has not landed yet.
 ARG BASE=php:8.5-fpm-alpine
 FROM ${BASE}
 
 ARG PHP_VERSION=8.5.12
 
-RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
- && apk add --no-cache \
+RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS linux-headers \
       libjpeg-turbo-dev libpng-dev freetype-dev libwebp-dev \
-      libzip-dev icu-dev oniguruma-dev libxml2-dev libxslt-dev libssh2-dev \
-      postgresql-dev sqlite-dev libsodium-dev imagemagick-dev openldap-dev curl-dev openssl-dev zlib-dev gettext-dev gmp-dev
+      libzip-dev icu-dev oniguruma-dev libxml2-dev libxslt-dev \
+      postgresql-dev sqlite-dev libsodium-dev openldap-dev \
+      curl-dev openssl-dev zlib-dev gettext-dev gmp-dev
 
 RUN set -eux; \
     curl -fsSL "https://www.php.net/distributions/php-${PHP_VERSION}.tar.xz" -o /tmp/php.tar.xz; \
@@ -30,15 +28,25 @@ RUN set -eux; \
       --with-gd --with-jpeg --with-freetype --with-webp \
       --with-pdo-mysql=mysqlnd --with-mysqli=mysqlnd --enable-mysqlnd \
       --with-pdo-pgsql --with-pgsql --with-pdo-sqlite --with-sqlite3 \
-      --with-iconv --with-gettext --with-gmp --with-ldap \
-    && make -j"$(nproc)" \
-    && make install \
-    && strip /usr/local/bin/php /usr/local/sbin/php-fpm \
-    && php -v
+      --with-iconv --with-gettext --with-gmp --with-ldap; \
+    make -j"$(nproc)"; \
+    make install; \
+    strip /usr/local/bin/php /usr/local/sbin/php-fpm; \
+    php -v
 
-RUN docker-php-ext-install -j"$(nproc)" pdo_mysql mysqli gd intl zip exif bcmath opcache \
- && pecl install redis apcu igbinary msgpack imagick \
- && docker-php-ext-enable redis apcu igbinary msgpack imagick \
- && apk del .build-deps \
+COPY --from=mlocati/php-extension-installer:latest /usr/bin/install-php-extensions /usr/local/bin/
+
+# Runtime libraries the compiled PHP links against. They must be installed as
+# explicit dependencies: the -dev packages above live in .build-deps and taking
+# that virtual package away also takes libzip/libpng/icu with it, which leaves
+# /usr/local/bin/php unable to relocate its symbols.
+RUN apk add --no-cache ghostscript imagemagick msmtp \
+      libzip libpng libjpeg-turbo freetype libwebp icu-libs oniguruma libxml2 \
+      libxslt postgresql-libs sqlite-libs libsodium openldap libcurl zlib \
+      gettext-libs gmp libstdc++
+
+RUN install-php-extensions redis apcu igbinary msgpack imagick \
  && rm -rf /tmp/php.tar.xz /usr/src/php-new \
- && php -m | tr '\n' ' ' && php -r 'echo "\nBUILT " . PHP_VERSION . "\n";'
+ && gs --version \
+ && php -r 'echo "BUILT " . PHP_VERSION . "\n";' \
+ && php -m | tr '\n' ' '
