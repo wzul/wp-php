@@ -55,6 +55,17 @@ System binaries the modules shell out to:
 Anything missing is a one-line addition in the Dockerfile — open an issue with the
 extension name and the plugin that needs it.
 
+## FPM socket
+
+The image listens on the unix socket `/run/php-fpm/fpm-www.sock` (mode 0660) and
+removes the stock `www.conf`, so a site's own pool file is the single source of
+truth. If your nginx expects TCP, override with your own pool file:
+
+```yaml
+volumes:
+  - ./php-fpm.d/zzz-www.conf:/usr/local/etc/php-fpm.d/zzz-www.conf:ro
+```
+
 ## Use with WordPress
 
 ```yaml

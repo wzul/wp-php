@@ -10,6 +10,20 @@ RUN install-php-extensions \
       pdo_mysql mysqli gd intl zip exif bcmath opcache \
       redis apcu igbinary msgpack imagick
 
+# wp-cli: the fleet's ofelia cron runs `wp cron event run --due-now`
+RUN wget -qO /usr/local/bin/wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+ && chmod +x /usr/local/bin/wp-cli.phar \
+ && printf '#!/bin/sh\nexec php -d error_reporting="E_ALL & ~E_DEPRECATED" /usr/local/bin/wp-cli.phar "$@"\n' > /usr/local/bin/wp \
+ && chmod +x /usr/local/bin/wp \
+ && wp --info --allow-root 2>/dev/null | head -2
+
+# The fleet mounts each site's pool config as zz-docker.conf, but the image's own
+# www.conf (listen = 9000) wins the merge, so nginx never finds the socket.
+# Ship the fleet convention instead and drop the conflicting default.
+RUN rm -f /usr/local/etc/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf.default \
+ && printf '[www]\nlisten = /run/php-fpm/fpm-www.sock\nlisten.mode = 0660\npm = dynamic\npm.max_children = 5\npm.start_servers = 2\npm.min_spare_servers = 1\npm.max_spare_servers = 3\npm.process_idle_timeout = 10s\n' > /usr/local/etc/php-fpm.d/zzz-www.conf \
+ && php-fpm -t 2>&1 | tail -1
+
 # ghostscript backs Imagick's PDF/PS delegate (WordPress PDF previews)
 RUN apk add --no-cache ghostscript imagemagick msmtp \
  && gs --version \
