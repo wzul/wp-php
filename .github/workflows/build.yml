@@ -51,7 +51,8 @@ jobs:
         run: |
           MINOR="${version%.*}"
           docker build \
-            --build-arg PHP_VERSION="${version}" \
+            -f fpm/Dockerfile.ext \
+            --build-arg BASE="php:${version}-fpm-alpine" \
             -t "$REGISTRY/$IMAGE:${version}" \
             -t "$REGISTRY/$IMAGE:${MINOR}" \
             fpm/

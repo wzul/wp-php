@@ -94,6 +94,10 @@ tarball was downloaded for, so a tag cannot silently point at an older build.
 ## Building locally
 
 ```bash
+# normal path: the official image for that patch release + the extension layer
+docker build -f fpm/Dockerfile.ext --build-arg BASE=php:8.5.12-fpm-alpine -t wp-php:8.5.12 fpm/
+
+# fallback while Docker Hub has not published that patch yet: compile PHP itself
 docker build --build-arg PHP_VERSION=8.5.12 -t wp-php:8.5.12 fpm/
 ```
 
