@@ -9,8 +9,9 @@ on:
   workflow_dispatch:
     inputs:
       php_version:
-        description: 'PHP version to build, e.g. 8.5.12'
-        required: true
+        description: 'Single PHP version to build, e.g. 8.5.12. Leave empty to build every supported branch.'
+        required: false
+        default: ''
 
 env:
   REGISTRY: ghcr.io
@@ -24,12 +25,28 @@ jobs:
     steps:
       - id: set
         run: |
+          set -euo pipefail
           if [ -n "${{ inputs.php_version }}" ]; then
             echo 'versions=["${{ inputs.php_version }}"]' >> "$GITHUB_OUTPUT"
-          else
-            # latest patch of each supported branch, read from php.net
-            echo 'versions=["8.2.35","8.3.36","8.4.27","8.5.12"]' >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+          # Latest patch of every branch php.net still supports. Read from the API rather than a
+          # hardcoded list, so a new security release is picked up by the nightly run.
+          branches=$(curl -fsSL --retry 3 --retry-delay 2 \
+            'https://www.php.net/releases/index.php?json&version=8' | jq -r '.supported_versions[]')
+          [ -n "$branches" ] || { echo "::error::php.net reported no supported 8.x branches"; exit 1; }
+          versions='[]'
+          for b in $branches; do
+            v=$(curl -fsSL --retry 3 --retry-delay 2 \
+              "https://www.php.net/releases/index.php?json&version=$b" | jq -r '.version')
+            case "$v" in
+              "$b".*) ;;
+              *) echo "::error::php.net returned '$v' for branch $b"; exit 1 ;;
+            esac
+            versions=$(jq -c --arg v "$v" '. + [$v]' <<<"$versions")
+          done
+          echo "resolved versions: $versions"
+          echo "versions=$versions" >> "$GITHUB_OUTPUT"
 
   build:
     needs: matrix
