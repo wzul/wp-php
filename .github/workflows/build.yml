@@ -41,6 +41,11 @@ jobs:
       fail-fast: false
       matrix:
         version: ${{ fromJson(needs.matrix.outputs.versions) }}
+    # matrix values are only exposed through the `matrix` context; without this every
+    # `$version` in the steps below expands to an empty string and the docker tag becomes
+    # "ghcr.io/wzul/wp-php:" (invalid reference format).
+    env:
+      version: ${{ matrix.version }}
     steps:
       - uses: actions/checkout@v4
 
