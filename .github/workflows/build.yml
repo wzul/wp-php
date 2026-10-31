@@ -16,6 +16,9 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE: ${{ github.repository_owner }}/wp-php
+  # Branches we no longer publish. 8.2 is security-only and reaches EOL on 31 Dec 2026, so it is
+  # dropped from the matrix now rather than left to rot. Add a branch here when it reaches EOL.
+  SKIP_BRANCHES: "8.2"
 
 jobs:
   matrix:
@@ -37,6 +40,9 @@ jobs:
           [ -n "$branches" ] || { echo "::error::php.net reported no supported 8.x branches"; exit 1; }
           versions='[]'
           for b in $branches; do
+            case " ${SKIP_BRANCHES} " in
+              *" $b "*) echo "skip $b (listed in SKIP_BRANCHES)"; continue ;;
+            esac
             v=$(curl -fsSL --retry 3 --retry-delay 2 \
               "https://www.php.net/releases/index.php?json&version=$b" | jq -r '.version')
             case "$v" in
@@ -45,6 +51,7 @@ jobs:
             esac
             versions=$(jq -c --arg v "$v" '. + [$v]' <<<"$versions")
           done
+          [ "$versions" != "[]" ] || { echo "::error::no branches left to build - check SKIP_BRANCHES"; exit 1; }
           echo "resolved versions: $versions"
           echo "versions=$versions" >> "$GITHUB_OUTPUT"
 
