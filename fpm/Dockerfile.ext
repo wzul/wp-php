@@ -59,7 +59,13 @@ RUN set -eux; \
  && apk del .extbuild \
  && php -m | tr '\n' ' '
 
-RUN install-php-extensions pdo_mysql mysqli gd intl zip exif bcmath opcache
+# The official 8.6 RC base images ship a leaner module set than 8.5: mbstring, soap, xsl,
+# sockets, pcntl, shmop, sysvsem, calendar, gettext, gmp, ldap, pdo_pgsql and igbinary are all
+# absent. WordPress survives without them, plugins do not (mb_strtolower() in a mu-plugin was
+# an immediate fatal). Installing the full set is a no-op on the 8.5 base, so the list stays
+# identical for every version.
+RUN install-php-extensions pdo_mysql mysqli gd intl zip exif bcmath opcache \
+      mbstring soap xsl sockets pcntl shmop sysvsem calendar gettext gmp ldap pdo_pgsql igbinary
 
 # wp-cli: cron runners and the panel call `wp cron event run`
 RUN wget -qO /usr/local/bin/wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \

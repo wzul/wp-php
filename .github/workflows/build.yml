@@ -120,13 +120,34 @@ jobs:
           TAGS="-t $REGISTRY/$IMAGE:${version}"
           if [ -n "$MINOR" ]; then TAGS="$TAGS -t $REGISTRY/$IMAGE:${MINOR}"; fi
 
-          # shellcheck disable=SC2086
-          docker build \
-            -f fpm/Dockerfile.ext \
-            --build-arg BASE="php:${version}-fpm-alpine" \
-            $REFS \
-            $TAGS \
-            fpm/
+          # php.net publishes hours before Docker Hub does. When the official image for this
+          # version is not there yet, compile PHP from the php.net tarball on top of the newest
+          # image of the same minor — that gap is the reason this repo exists.
+          BASE="php:${version}-fpm-alpine"
+          if docker manifest inspect "$BASE" >/dev/null 2>&1; then
+            echo "official base available: $BASE"
+            # shellcheck disable=SC2086
+            docker build -f fpm/Dockerfile.ext --build-arg BASE="$BASE" $REFS $TAGS fpm/
+          else
+            minor_branch=$(echo "$version" | cut -d. -f1,2)
+            fallback=$(curl -fsSL --retry 3 \
+              "https://hub.docker.com/v2/repositories/library/php/tags?page_size=100&name=${minor_branch}." \
+              | jq -r '.results[].name' | grep -E -- '-fpm-alpine$' | sort -V | tail -1)
+            if [ -z "$fallback" ]; then
+              echo "::error::no base image published for ${minor_branch} and no fallback found"
+              exit 1
+            fi
+            echo "official ${version} image missing; compiling the tarball on php:${fallback}"
+            docker build -f fpm/Dockerfile \
+              --build-arg BASE="php:${fallback}" --build-arg PHP_VERSION="$version" \
+              -t "local/php-${version}-base" fpm/
+            docker build -f fpm/Dockerfile.core \
+              --build-arg BASE="local/php-${version}-base" \
+              -t "local/php-${version}-core" fpm/
+            # shellcheck disable=SC2086
+            docker build -f fpm/Dockerfile.ext \
+              --build-arg BASE="local/php-${version}-core" $REFS $TAGS fpm/
+          fi
 
       - name: Prove the tag matches the source version
         run: |

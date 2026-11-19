@@ -1,0 +1,383 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.ext
+#1 transferring dockerfile:
+#1 transferring dockerfile: 4.48kB 0.2s done
+#1 DONE 0.4s
+
+#2 [internal] load metadata for docker.io/library/php:8.6.0RC7-fpm-alpine
+#2 DONE 0.1s
+
+#3 [internal] load metadata for docker.io/mlocati/php-extension-installer:latest
+#3 DONE 3.3s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.1s
+
+#5 FROM docker.io/mlocati/php-extension-installer:latest@sha256:4fd45396c16685266d32bf147a24ecd5e81029d3820295895bf4a90131190ac9
+#5 DONE 0.0s
+
+#6 [stage-0 1/7] FROM docker.io/library/php:8.6.0RC7-fpm-alpine
+#6 DONE 0.0s
+
+#7 [stage-0 2/7] COPY --from=mlocati/php-extension-installer:latest /usr/bin/install-php-extensions /usr/local/bin/
+#7 CACHED
+
+#8 [stage-0 3/7] RUN set -eux;     apk add --no-cache --virtual .extbuild autoconf 		dpkg-dev dpkg 		file 		g++ 		gcc 		libc-dev 		make 		pkgconf 		re2c imagemagick-dev libc-dev  && mkdir -p /tmp/b/apcu  && wget -qO- "https://github.com/krakjoe/apcu/archive/fb2c942552a3f5dab7f4dea4afb5cf0831222c57.tar.gz" | tar xz -C /tmp/b/apcu --strip-components=1  && cd /tmp/b/apcu  && phpize  && ./configure --with-php-config=/usr/local/bin/php-config --enable-apcu  && make -j"$(nproc)"  && make install  && docker-php-ext-enable apcu  && cd / && rm -rf /tmp/b/apcu  && mkdir -p /tmp/b/redis  && wget -qO- "https://github.com/phpredis/phpredis/archive/5b60b125aba347159b0c9c319296fbb3c5ed9214.tar.gz" | tar xz -C /tmp/b/redis --strip-components=1  && cd /tmp/b/redis  && phpize  && ./configure --with-php-config=/usr/local/bin/php-config  && make -j"$(nproc)"  && make install  && docker-php-ext-enable redis  && cd / && rm -rf /tmp/b/redis  && mkdir -p /tmp/b/msgpack  && wget -qO- "https://github.com/msgpack/msgpack-php/archive/4a6890850a9065f9a211951df4fc39c5a4c498ab.tar.gz" | tar xz -C /tmp/b/msgpack --strip-components=1  && cd /tmp/b/msgpack  && phpize  && ./configure --with-php-config=/usr/local/bin/php-config  && make -j"$(nproc)"  && make install  && docker-php-ext-enable msgpack  && cd / && rm -rf /tmp/b/msgpack  && mkdir -p /tmp/b/imagick  && wget -qO- "https://github.com/Imagick/imagick/archive/55ed2e9fda264395636a2e27e51f31673f5566ab.tar.gz" | tar xz -C /tmp/b/imagick --strip-components=1  && cd /tmp/b/imagick  && phpize  && ./configure --with-php-config=/usr/local/bin/php-config --with-imagick  && make -j"$(nproc)"  && make install  && docker-php-ext-enable imagick  && cd / && rm -rf /tmp/b/imagick  && apk del .extbuild  && php -m | tr '\n' ' '
+#8 CACHED
+
+#9 [stage-0 4/7] RUN install-php-extensions pdo_mysql mysqli gd intl zip exif bcmath opcache       mbstring soap xsl sockets pcntl shmop sysvsem calendar gettext gmp ldap pdo_pgsql igbinary
+#9 3.006 install-php-extensions v.2.13.2
+#9 3.006 #StandWithUkraine
+#9 3.427 Warning: PHP Startup: Unable to load dynamic library 'imagick' (tried: /usr/local/lib/php/extensions/no-debug-zts-20261112/imagick (Error loading shared library /usr/local/lib/php/extensions/no-debug-zts-20261112/imagick: No such file or directory), /usr/local/lib/php/extensions/no-debug-zts-20261112/imagick.so (Error loading shared library libgomp.so.1: No such file or directory (needed by /usr/local/lib/php/extensions/no-debug-zts-20261112/imagick.so))) in Unknown on line 0
+#9 3.504 ### WARNING Unrecognized module name: Warning: PHP Startup: Unable to load dynamic library 'imagick' (tried: /usr/local/lib/php/extensions/no-debug-zts-20261112/imagick (Error loading shared library /usr/local/lib/php/extensions/no-debug-zts-20261112/imagick: No such file or directory), /usr/local/lib/php/extensions/no-debug-zts-20261112/imagick.so (Error loading shared library libgomp.so.1: No such file or directory (needed by /usr/local/lib/php/extensions/no-debug-zts-20261112/imagick.so))) in Unknown on line 0 ###
+#9 3.779 ### WARNING Module already installed: opcache ###
+#9 19.27 ### INSTALLING PEAR ###
+#9 27.43 [PEAR] Archive_Tar    - installed: 1.6.0
+#9 27.53 [PEAR] Console_Getopt - installed: 1.4.3
+#9 27.60 [PEAR] Structures_Graph- installed: 1.2.0
+#9 27.60 [PEAR] XML_Util       - installed: 1.4.5
+#9 27.62 warning: pear/PEAR dependency package "pear/Archive_Tar" installed version 1.6.0 is not the recommended version 1.4.4
+#9 27.62 warning: pear/PEAR dependency package "pear/Structures_Graph" installed version 1.2.0 is not the recommended version 1.1.1
+#9 27.84 [PEAR] PEAR           - installed: 1.10.18
+#9 27.84 Wrote PEAR system config file at: /usr/local/etc/pear.conf
+#9 27.84 You may want to add: /usr/local/lib/php to your php.ini include_path
+#9 28.14 
+#9 28.14 Warning: PHP Startup: Unable to load dynamic library 'imagick' (tried: /usr/local/lib/php/extensions/no-debug-zts-20261112/imagick (Error loading shared library /usr/local/lib/php/extensions/no-debug-zts-20261112/imagick: No such file or directory), /usr/local/lib/php/extensions/no-debug-zts-20261112/imagick.so (Error loading shared library libgomp.so.1: No such file or directory (needed by /usr/local/lib/php/extensions/no-debug-zts-20261112/imagick.so))) in Unknown on line 0
+#9 28.15 Updating channel "pecl.php.net"
+#9 28.66 Update of Channel "pecl.php.net" succeeded
+#9 32.44 v3.24.4-127-gced0c71f993 [https://dl-cdn.alpinelinux.org/alpine/v3.24/main]
+#9 32.44 v3.24.4-129-gf2efe5078d7 [https://dl-cdn.alpinelinux.org/alpine/v3.24/community]
+#9 32.44 OK: 28673 distinct packages available
+#9 64.69 ### MARKING PRE-INSTALLED PACKAGES AS IN-USE ###
+#9 64.69 # Packages: libssl3
+#9 65.50 OK: 19.8 MiB in 40 packages
+#9 65.55 ### INSTALLING REQUIRED PACKAGES ###
+#9 65.55 # Packages to be kept after installation: aom-libs libbz2 libpng freetype gmp icu-data-full libstdc++ icu-libs libdav1d libjpeg-turbo libyuv libavif libintl gdbm libsasl libldap libsharpyuv libwebp libwebpdemux libwebpmux libxau libmd libbsd libxdmcp libxcb libx11 libxext libice libuuid libsm libxt libxpm libxslt libzip oniguruma libpq libecpg
+#9 65.55 # Packages to be used only for installation: aom pkgconf aom-dev m4 perl autoconf libexpat lz4-libs libarchive rhash-libs libuv cmake dav1d-dev dpkg dpkg-dev libmagic file bzip2-dev brotli brotli-dev zlib-dev libpng-dev freetype-dev libstdc++-dev jansson binutils libgcc-static libgomp libatomic isl26 mpfr4 mpc1 gcc musl-dev g++ gettext-asprintf gettext-libs gettext-envsubst gettext gettext-dev libgmpxx gmp-dev icu icu-dev libavif-dev libgpg-error libgcrypt libgpg-error-dev libgcrypt-dev libturbojpeg libjpeg-turbo-dev libwebpdecoder libwebp-dev xz-dev libxml2-utils libxml2-dev xorgproto libxau-dev libffi mpdecimal libpanelw python3 python3-pycache-pyc0 pyc xcb-proto-pyc python3-pyc xcb-proto libxdmcp-dev libxcb-dev xtrans libx11-dev libxpm-dev libxslt-dev libzip-tools zstd zstd-dev libzip-dev linux-headers make oniguruma-dev cyrus-sasl-dev libevent libevent-dev libsodium-dev libeconf libblkid libfdisk skalibs-libs utmps-libs linux-pam liblastlog2 libmount libsmartcols sqlite sqlite-dev util-linux-dev openldap-dev openssl-dev libpq-dev libecpg-dev liburing-ffi liburing liburing-dev clang22-headers llvm22-libs clang22-libs fortify-headers llvm22-linker-tools clang22 llvm22 lz4-dev postgresql18-dev re2c
+#9 66.15 (  1/153) Installing aom-libs (3.14.1-r0)
+#9 66.50 (  2/153) Installing libstdc++ (15.2.0-r5)
+#9 66.62 (  3/153) Installing aom (3.14.1-r0)
+#9 66.87 (  4/153) Installing pkgconf (2.5.1-r0)
+#9 67.14 (  5/153) Installing aom-dev (3.14.1-r0)
+#9 67.43 (  6/153) Upgrading libcrypto3 (3.5.9-r0 -> 3.5.9-r1)
+#9 67.89 (  7/153) Upgrading libssl3 (3.5.9-r0 -> 3.5.9-r1)
+#9 67.91 (  8/153) Installing m4 (1.4.20-r1)
+#9 67.93 (  9/153) Installing libbz2 (1.0.8-r6)
+#9 67.93 ( 10/153) Installing perl (5.42.3-r0)
+#9 69.70 ( 11/153) Installing autoconf (2.73-r0)
+#9 70.46 ( 12/153) Installing jansson (2.15.0-r0)
+#9 70.46 ( 13/153) Installing binutils (2.45.1-r1)
+#9 70.46 ( 14/153) Installing brotli (1.2.1-r0)
+#9 70.57 ( 15/153) Installing brotli-dev (1.2.1-r0)
+#9 70.59 ( 16/153) Installing bzip2-dev (1.0.8-r6)
+#9 70.62 ( 17/153) Installing clang22-headers (22.1.3-r2)
+#9 71.00 ( 18/153) Installing libffi (3.5.2-r1)
+#9 71.04 ( 19/153) Installing llvm22-libs (22.1.3-r1)
+#9 76.93 ( 20/153) Installing clang22-libs (22.1.3-r2)
+#9 81.18 ( 21/153) Installing fortify-headers (3.0.1-r2)
+#9 81.19 ( 22/153) Installing libgcc-static (15.2.0-r5)
+#9 81.24 ( 23/153) Installing libstdc++-dev (15.2.0-r5)
+#9 81.55 ( 24/153) Installing llvm22-linker-tools (22.1.3-r1)
+#9 81.56 ( 25/153) Installing musl-dev (1.2.6-r3)
+#9 81.67 ( 26/153) Installing clang22 (22.1.3-r2)
+#9 81.70 ( 27/153) Installing libexpat (2.10.0-r0)
+#9 81.71 ( 28/153) Installing lz4-libs (1.10.0-r1)
+#9 81.72 ( 29/153) Installing libarchive (3.8.11-r0)
+#9 81.74 ( 30/153) Installing rhash-libs (1.4.6-r0)
+#9 81.76 ( 31/153) Installing libuv (1.52.1-r0)
+#9 81.78 ( 32/153) Installing cmake (4.2.3-r0)
+#9 83.62 ( 33/153) Installing gdbm (1.26-r0)
+#9 83.72 ( 34/153) Installing libsasl (2.1.28-r9)
+#9 83.83 ( 35/153) Installing cyrus-sasl-dev (2.1.28-r9)
+#9 84.02 ( 36/153) Installing libdav1d (1.5.3-r0)
+#9 84.39 ( 37/153) Installing dav1d-dev (1.5.3-r0)
+#9 84.71 ( 38/153) Installing libmd (1.2.0-r0)
+#9 84.77 ( 39/153) Installing dpkg (1.23.7-r0)
+#9 84.98 ( 40/153) Installing dpkg-dev (1.23.7-r0)
+#9 85.06 ( 41/153) Installing libmagic (5.47-r2)
+#9 85.12 ( 42/153) Installing file (5.47-r2)
+#9 85.38 ( 43/153) Installing libpng (1.6.59-r0)
+#9 85.52 ( 44/153) Installing freetype (2.14.3-r0)
+#9 85.65 ( 45/153) Installing zlib-dev (1.4-r0)
+#9 85.67 ( 46/153) Installing libpng-dev (1.6.59-r0)
+#9 85.73 ( 47/153) Installing freetype-dev (2.14.3-r0)
+#9 85.78 ( 48/153) Installing libgomp (15.2.0-r5)
+#9 86.12 ( 49/153) Installing libatomic (15.2.0-r5)
+#9 86.18 ( 50/153) Installing gmp (6.3.0-r4)
+#9 86.66 ( 51/153) Installing isl26 (0.26-r2)
+#9 87.98 ( 52/153) Installing mpfr4 (4.2.2-r0)
+#9 88.08 ( 53/153) Installing mpc1 (1.3.1-r1)
+#9 88.47 ( 54/153) Installing gcc (15.2.0-r5)
+#9 91.88 ( 55/153) Installing g++ (15.2.0-r5)
+#9 92.26 ( 56/153) Installing libintl (1.0-r0)
+#9 92.28 ( 57/153) Installing gettext-envsubst (1.0-r0)
+#9 92.29 ( 58/153) Installing gettext-libs (1.0-r0)
+#9 92.32 ( 59/153) Installing gettext (1.0-r0)
+#9 92.54 ( 60/153) Installing gettext-asprintf (1.0-r0)
+#9 92.55 ( 61/153) Installing gettext-dev (1.0-r0)
+#9 92.60 ( 62/153) Installing libgmpxx (6.3.0-r4)
+#9 92.68 ( 63/153) Installing gmp-dev (6.3.0-r4)
+#9 92.69 ( 64/153) Installing icu-data-full (78.1-r0)
+#9 93.11 ( 65/153) Installing icu-libs (78.1-r0)
+#9 93.22 ( 66/153) Installing icu (78.1-r0)
+#9 93.26 ( 67/153) Installing icu-dev (78.1-r0)
+#9 93.35 ( 68/153) Installing libjpeg-turbo (3.1.3-r0)
+#9 93.41 ( 69/153) Installing libyuv (0.0.1928-r0)
+#9 93.47 ( 70/153) Installing libavif (1.4.1-r0)
+#9 93.54 ( 71/153) Installing libavif-dev (1.4.1-r0)
+#9 93.81 ( 72/153) Installing libeconf (0.8.3-r0)
+#9 93.88 ( 73/153) Installing libblkid (2.42.3-r1)
+#9 93.92 ( 74/153) Installing libbsd (0.12.2-r0)
+#9 93.95 ( 75/153) Installing libpq (18.7-r0)
+#9 93.98 ( 76/153) Installing libecpg (18.7-r0)
+#9 93.99 ( 77/153) Installing openssl-dev (3.5.9-r1)
+#9 94.03 ( 78/153) Installing libpq-dev (18.7-r0)
+#9 94.29 ( 79/153) Installing libecpg-dev (18.7-r0)
+#9 94.43 ( 80/153) Installing libevent (2.1.13-r0)
+#9 94.45 ( 81/153) Installing mpdecimal (4.0.1-r0)
+#9 94.47 ( 82/153) Installing libpanelw (6.6_p20260516-r0)
+#9 94.47 ( 83/153) Installing python3 (3.14.10-r1)
+#9 94.76 ( 84/153) Installing python3-pycache-pyc0 (3.14.10-r1)
+#9 95.96 ( 85/153) Installing pyc (3.14.10-r1)
+#9 95.96 ( 86/153) Installing python3-pyc (3.14.10-r1)
+#9 95.96 ( 87/153) Installing libevent-dev (2.1.13-r0)
+#9 96.03 ( 88/153) Installing libuuid (2.42.3-r1)
+#9 96.16 ( 89/153) Installing libfdisk (2.42.3-r1)
+#9 96.27 ( 90/153) Installing libgpg-error (1.61-r0)
+#9 96.38 ( 91/153) Installing libgcrypt (1.12.2-r0)
+#9 96.41 ( 92/153) Installing libgpg-error-dev (1.61-r0)
+#9 96.43 ( 93/153) Installing libgcrypt-dev (1.12.2-r0)
+#9 96.45 ( 94/153) Installing libice (1.1.2-r0)
+#9 96.46 ( 95/153) Installing libturbojpeg (3.1.3-r0)
+#9 96.48 ( 96/153) Installing libjpeg-turbo-dev (3.1.3-r0)
+#9 96.49 ( 97/153) Installing skalibs-libs (2.15.0.0-r0)
+#9 96.50 ( 98/153) Installing utmps-libs (0.1.3.3-r0)
+#9 96.50 ( 99/153) Installing linux-pam (1.7.1-r2)
+#9 96.54 (100/153) Installing liblastlog2 (2.42.3-r1)
+#9 96.56 (101/153) Installing libldap (2.6.15-r0)
+#9 96.58 (102/153) Installing libmount (2.42.3-r1)
+#9 96.59 (103/153) Installing libsharpyuv (1.6.0-r0)
+#9 96.60 (104/153) Installing libsm (1.2.6-r0)
+#9 96.60 (105/153) Installing libsmartcols (2.42.3-r1)
+#9 96.61 (106/153) Installing libsodium-dev (1.0.22-r0)
+#9 96.62 (107/153) Installing liburing (2.14-r0)
+#9 96.63 (108/153) Installing liburing-ffi (2.14-r0)
+#9 96.63 (109/153) Installing liburing-dev (2.14-r0)
+#9 96.64 (110/153) Installing libwebp (1.6.0-r0)
+#9 96.65 (111/153) Installing libwebpdecoder (1.6.0-r0)
+#9 96.67 (112/153) Installing libwebpdemux (1.6.0-r0)
+#9 96.67 (113/153) Installing libwebpmux (1.6.0-r0)
+#9 96.68 (114/153) Installing libwebp-dev (1.6.0-r0)
+#9 96.70 (115/153) Installing libxau (1.0.12-r0)
+#9 96.70 (116/153) Installing libxdmcp (1.1.5-r1)
+#9 96.73 (117/153) Installing libxcb (1.17.0-r2)
+#9 96.78 (118/153) Installing libx11 (1.8.14-r0)
+#9 96.94 (119/153) Installing xorgproto (2025.1-r0)
+#9 97.05 (120/153) Installing libxau-dev (1.0.12-r0)
+#9 97.06 (121/153) Installing xcb-proto (1.17.0-r1)
+#9 97.10 (122/153) Installing xcb-proto-pyc (1.17.0-r1)
+#9 97.13 (123/153) Installing libxdmcp-dev (1.1.5-r1)
+#9 97.15 (124/153) Installing libxcb-dev (1.17.0-r2)
+#9 97.24 (125/153) Installing xtrans (1.6.0-r0)
+#9 97.25 (126/153) Installing libx11-dev (1.8.14-r0)
+#9 97.26 (127/153) Installing libxext (1.3.7-r0)
+#9 97.28 (128/153) Installing xz-dev (5.8.4-r0)
+#9 97.31 (129/153) Installing libxml2-utils (2.13.9-r2)
+#9 97.32 (130/153) Installing libxml2-dev (2.13.9-r2)
+#9 97.35 (131/153) Installing libxt (1.3.1-r0)
+#9 97.37 (132/153) Installing libxpm (3.5.20-r0)
+#9 97.38 (133/153) Installing libxpm-dev (3.5.20-r0)
+#9 97.39 (134/153) Installing libxslt (1.1.43-r4)
+#9 97.47 (135/153) Installing libxslt-dev (1.1.43-r4)
+#9 97.48 (136/153) Installing libzip (1.11.4-r2)
+#9 97.49 (137/153) Installing libzip-tools (1.11.4-r2)
+#9 97.50 (138/153) Installing zstd (1.5.7-r2)
+#9 97.51 (139/153) Installing zstd-dev (1.5.7-r2)
+#9 97.52 (140/153) Installing libzip-dev (1.11.4-r2)
+#9 97.53 (141/153) Installing linux-headers (7.0.0-r1)
+#9 97.96 (142/153) Installing llvm22 (22.1.3-r1)
+#9 99.33 (143/153) Installing lz4-dev (1.10.0-r1)
+#9 99.35 (144/153) Installing make (4.4.1-r4)
+#9 99.44 (145/153) Installing oniguruma (6.9.10-r0)
+#9 99.56 (146/153) Installing oniguruma-dev (6.9.10-r0)
+#9 99.59 (147/153) Installing sqlite (3.53.4-r0)
+#9 99.69 (148/153) Installing sqlite-dev (3.53.4-r0)
+#9 99.71 (149/153) Installing util-linux-dev (2.42.3-r1)
+#9 99.72 (150/153) Installing openldap-dev (2.6.15-r0)
+#9 99.79 (151/153) Upgrading openssl (3.5.9-r0 -> 3.5.9-r1)
+#9 99.83 (152/153) Installing postgresql18-dev (18.7-r0)
+#9 100.1 (153/153) Installing re2c (4.5.1-r0)
+#9 100.2 Executing busybox-1.37.0-r31.trigger
+#9 100.3 Executing ca-certificates-20261020-r0.trigger
+#9 101.6 OK: 956.8 MiB in 190 packages
+#9 102.9 ### INSTALLING REMOTE MODULE igbinary ###
+#9 102.9 
+#9 102.9 Warning: PHP Startup: Unable to load dynamic library 'imagick' (tried: /usr/local/lib/php/extensions/no-debug-zts-20261112/imagick (Error loading shared library /usr/local/lib/php/extensions/no-debug-zts-20261112/imagick: No such file or directory), /usr/local/lib/php/extensions/no-debug-zts-20261112/imagick.so (Error loading shared library libMagickWand-7.Q16HDRI.so.10: No such file or directory (needed by /usr/local/lib/php/extensions/no-debug-zts-20261112/imagick.so))) in Unknown on line 0
+#9 105.5 downloading igbinary-3.2.17RC1.tgz ...
+#9 105.5 Starting to download igbinary-3.2.17RC1.tgz (103,412 bytes)
+#9 105.6 ......done: 103,412 bytes
+#9 106.2 15 source files, building
+#9 106.2 running: phpize
+#9 106.3 Configuring for:
+#9 106.3 PHP Version:             8.6
+#9 106.3 PHP Api Version:         20261112
+#9 106.3 Zend Module Api No:      20261112
+#9 106.3 Zend Extension Api No:   420261112
+#9 109.7 building in /tmp/pear/temp/pear-build-defaultusergkqggpkp96n7eNmaDAb/igbinary-3.2.17RC1
+#9 109.7 running: /tmp/pear/temp/igbinary/configure --with-php-config=/usr/local/bin/php-config
+#9 110.4 checking for grep that handles long lines and -e... /bin/grep
+#9 110.4 checking for egrep... /bin/grep -E
+#9 110.4 checking for a sed that does not truncate output... /bin/sed
+#9 110.6 checking build system type... x86_64-pc-linux-musl
+#9 110.6 checking host system type... x86_64-pc-linux-musl
+#9 110.6 checking target system type... x86_64-pc-linux-musl
+#9 110.8 shtool:echo:Warning: unable to determine terminal sequence for bold mode
+#9 111.0 shtool:echo:Warning: unable to determine terminal sequence for bold mode
+#9 111.0 checking for gawk... no
+#9 111.0 checking for nawk... no
+#9 111.0 checking for awk... awk
+#9 111.1 checking if awk is broken... no
+#9 111.1 checking for pkg-config... /usr/bin/pkg-config
+#9 111.1 checking pkg-config is at least version 0.9.0... yes
+#9 111.1 checking for cc... cc
+#9 111.4 checking whether the C compiler works... yes
+#9 111.4 checking for C compiler default output file name... a.out
+#9 111.5 checking for suffix of executables...
+#9 111.6 checking whether we are cross compiling... no
+#9 111.7 checking for suffix of object files... o
+#9 111.8 checking whether the compiler supports GNU C... yes
+#9 112.0 checking whether cc accepts -g... yes
+#9 112.2 checking for cc option to enable C23 features... unsupported
+#9 112.4 checking for cc option to enable C11 features... none needed
+#9 112.6 checking how to run the C preprocessor... cc -E
+#9 112.7 checking for egrep -e... (cached) /bin/grep -E
+#9 112.7 checking for icc... no
+#9 112.8 checking for suncc... no
+#9 112.8 checking for system library directory... lib
+#9 113.2 checking if compiler supports -Wl,-rpath,... yes
+#9 113.3 checking for PHP prefix... /usr/local
+#9 113.3 checking for PHP includes... -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib
+#9 113.3 checking for PHP extension directory... /usr/local/lib/php/extensions/no-debug-zts-20261112
+#9 113.3 checking for PHP installed headers prefix... /usr/local/include/php
+#9 113.4 checking if debugging is enabled... no
+#9 113.5 checking if PHP is built with thread safety (ZTS)... yes
+#9 113.5 
+#9 113.5 Configuring extension
+#9 113.5 checking whether to enable igbinary support... yes, shared
+#9 113.6 checking for stdio.h... yes
+#9 113.7 checking for stdlib.h... yes
+#9 113.8 checking for string.h... yes
+#9 113.8 checking for inttypes.h... yes
+#9 114.0 checking for stdint.h... yes
+#9 114.1 checking for strings.h... yes
+#9 114.2 checking for sys/stat.h... yes
+#9 114.4 checking for sys/types.h... yes
+#9 114.6 checking for unistd.h... yes
+#9 114.7 checking for stdbool.h... yes
+#9 114.8 checking for stddef.h... yes
+#9 114.8 checking for stdint.h... (cached) yes
+#9 114.9 checking PHP version... PHP 7 or newer
+#9 114.9 checking for APCu includes... APCu in /usr/local/include/php
+#9 115.1 checking size of long... 8
+#9 115.1 checking compiler type... gcc
+#9 115.2 
+#9 115.2 Configuring libtool
+#9 115.2 checking how to print strings... printf
+#9 115.2 checking for a sed that does not truncate output... (cached) /bin/sed
+#9 115.2 checking for fgrep... /bin/grep -F
+#9 115.3 checking for ld used by cc... /usr/x86_64-alpine-linux-musl/bin/ld
+#9 115.3 checking if the linker (/usr/x86_64-alpine-linux-musl/bin/ld) is GNU ld... yes
+#9 115.3 checking for BSD- or MS-compatible name lister (nm)... /usr/bin/nm -B
+#9 115.4 checking the name lister (/usr/bin/nm -B) interface... BSD nm
+#9 115.4 checking whether ln -s works... yes
+#9 115.4 checking the maximum length of command line arguments... 98304
+#9 115.5 checking how to convert x86_64-pc-linux-musl file names to x86_64-pc-linux-musl format... func_convert_file_noop
+#9 115.5 checking how to convert x86_64-pc-linux-musl file names to toolchain format... func_convert_file_noop
+#9 115.5 checking for /usr/x86_64-alpine-linux-musl/bin/ld option to reload object files... -r
+#9 115.5 checking for file... file
+#9 115.5 checking for objdump... objdump
+#9 115.5 checking how to recognize dependent libraries... pass_all
+#9 115.5 checking for dlltool... no
+#9 115.5 checking how to associate runtime and link libraries... printf %s\n
+#9 115.5 checking for ranlib... ranlib
+#9 115.5 checking for ar... ar
+#9 115.6 checking for archiver @FILE support... @
+#9 115.6 checking for strip... strip
+#9 115.6 checking for gawk... (cached) awk
+#9 115.9 checking command to parse /usr/bin/nm -B output from cc object... ok
+#9 115.9 checking for sysroot... no
+#9 115.9 checking for a working dd... /bin/dd
+#9 115.9 checking how to truncate binary pipes... /bin/dd bs=4096 count=1
+#9 116.1 checking for mt... no
+#9 116.1 checking if : is a manifest tool... no
+#9 116.3 checking for dlfcn.h... yes
+#9 116.3 checking for objdir... .libs
+#9 116.5 checking if cc supports -fno-rtti -fno-exceptions... no
+#9 116.5 checking for cc option to produce PIC... -fPIC -DPIC
+#9 116.6 checking if cc PIC flag -fPIC -DPIC works... yes
+#9 116.7 checking if cc static flag -static works... yes
+#9 116.9 checking if cc supports -c -o file.o... yes
+#9 116.9 checking if cc supports -c -o file.o... (cached) yes
+#9 116.9 checking whether the cc linker (/usr/x86_64-alpine-linux-musl/bin/ld -m elf_x86_64) supports shared libraries... yes
+#9 117.1 checking whether -lc should be explicitly linked in... no
+#9 117.2 checking dynamic linker characteristics... GNU/Linux ld.so
+#9 117.2 checking how to hardcode library paths into programs... immediate
+#9 117.2 checking whether stripping libraries is possible... yes
+#9 117.2 checking if libtool supports shared libraries... yes
+#9 117.2 checking whether to build shared libraries... yes
+#9 117.2 checking whether to build static libraries... no
+#9 117.2 
+#9 117.2 Generating files
+#9 117.3 configure: creating build directories
+#9 117.4 configure: creating Makefile
+#9 117.4 configure: patching config.h.in
+#9 117.4 configure: creating ./config.status
+#9 119.6 config.status: creating config.h
+#9 119.7 config.status: executing libtool commands
+#9 119.7 running: make -j6
+#9 119.8 /bin/sh /tmp/pear/temp/pear-build-defaultusergkqggpkp96n7eNmaDAb/igbinary-3.2.17RC1/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/igbinary -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE -Werror=implicit-function-declaration  -g -O2 -O2 -Wall -Wpointer-arith -Wcast-align -Wwrite-strings -Wswitch -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/igbinary/src/php7/igbinary.c -o src/php7/igbinary.lo  -MMD -MF src/php7/igbinary.dep -MT src/php7/igbinary.lo
+#9 119.8 /bin/sh /tmp/pear/temp/pear-build-defaultusergkqggpkp96n7eNmaDAb/igbinary-3.2.17RC1/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/igbinary -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE -Werror=implicit-function-declaration  -g -O2 -O2 -Wall -Wpointer-arith -Wcast-align -Wwrite-strings -Wswitch -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/igbinary/src/php7/hash_si.c -o src/php7/hash_si.lo  -MMD -MF src/php7/hash_si.dep -MT src/php7/hash_si.lo
+#9 119.8 /bin/sh /tmp/pear/temp/pear-build-defaultusergkqggpkp96n7eNmaDAb/igbinary-3.2.17RC1/libtool --tag=CC --mode=compile cc -I. -I/tmp/pear/temp/igbinary -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -DHAVE_CONFIG_H  -g -O2 -D_GNU_SOURCE -Werror=implicit-function-declaration  -g -O2 -O2 -Wall -Wpointer-arith -Wcast-align -Wwrite-strings -Wswitch -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/igbinary/src/php7/hash_si_ptr.c -o src/php7/hash_si_ptr.lo  -MMD -MF src/php7/hash_si_ptr.dep -MT src/php7/hash_si_ptr.lo
+#9 119.9 libtool: compile:  cc -I. -I/tmp/pear/temp/igbinary -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -Werror=implicit-function-declaration -g -O2 -O2 -Wall -Wpointer-arith -Wcast-align -Wwrite-strings -Wswitch -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/igbinary/src/php7/hash_si.c -MMD -MF src/php7/hash_si.dep -MT src/php7/hash_si.lo  -fPIC -DPIC -o src/php7/.libs/hash_si.o
+#9 119.9 libtool: compile:  cc -I. -I/tmp/pear/temp/igbinary -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -Werror=implicit-function-declaration -g -O2 -O2 -Wall -Wpointer-arith -Wcast-align -Wwrite-strings -Wswitch -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/igbinary/src/php7/igbinary.c -MMD -MF src/php7/igbinary.dep -MT src/php7/igbinary.lo  -fPIC -DPIC -o src/php7/.libs/igbinary.o
+#9 119.9 libtool: compile:  cc -I. -I/tmp/pear/temp/igbinary -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -DHAVE_CONFIG_H -g -O2 -D_GNU_SOURCE -Werror=implicit-function-declaration -g -O2 -O2 -Wall -Wpointer-arith -Wcast-align -Wwrite-strings -Wswitch -DZEND_COMPILE_DL_EXT=1 -c /tmp/pear/temp/igbinary/src/php7/hash_si_ptr.c -MMD -MF src/php7/hash_si_ptr.dep -MT src/php7/hash_si_ptr.lo  -fPIC -DPIC -o src/php7/.libs/hash_si_ptr.o
+#9 121.0 /tmp/pear/temp/igbinary/src/php7/igbinary.c: In function 'igbinary_unserialize_array':
+#9 121.0 /tmp/pear/temp/igbinary/src/php7/igbinary.c:2604:25: error: implicit declaration of function 'zval_dtor' [-Wimplicit-function-declaration]
+#9 121.0  2604 |                         zval_dtor(z);
+#9 121.0       |                         ^~~~~~~~~
+#9 121.1 /tmp/pear/temp/igbinary/src/php7/igbinary.c: In function 'igbinary_unserialize_object':
+#9 121.1 /tmp/pear/temp/igbinary/src/php7/igbinary.c:3104:32: error: assignment to 'const char *' from incompatible pointer type 'zend_string *' {aka 'struct _zend_string *'} [-Wincompatible-pointer-types]
+#9 121.1  3104 |                 user_func_name = PG(unserialize_callback_func);
+#9 121.1       |                                ^
+#9 121.1 /tmp/pear/temp/igbinary/src/php7/igbinary.c:3135:70: warning: format '%s' expects argument of type 'char *', but argument 4 has type 'zend_string *' {aka 'struct _zend_string *'} [-Wformat=]
+#9 121.1  3135 |                         php_error_docref(NULL, E_WARNING, "Function %s() hasn't defined the class it was called for", PG(unserialize_callback_func));
+#9 121.1       |                                                                     ~^
+#9 121.1       |                                                                      |
+#9 121.1       |                                                                      char *
+#9 121.2 make: *** [Makefile:208: src/php7/igbinary.lo] Error 1
+#9 121.2 ERROR: `make -j6' failed
+#9 ERROR: process "/bin/sh -c install-php-extensions pdo_mysql mysqli gd intl zip exif bcmath opcache       mbstring soap xsl sockets pcntl shmop sysvsem calendar gettext gmp ldap pdo_pgsql igbinary" did not complete successfully: exit code: 1
+------
+ > [stage-0 4/7] RUN install-php-extensions pdo_mysql mysqli gd intl zip exif bcmath opcache       mbstring soap xsl sockets pcntl shmop sysvsem calendar gettext gmp ldap pdo_pgsql igbinary:
+121.1 /tmp/pear/temp/igbinary/src/php7/igbinary.c:3104:32: error: assignment to 'const char *' from incompatible pointer type 'zend_string *' {aka 'struct _zend_string *'} [-Wincompatible-pointer-types]
+121.1  3104 |                 user_func_name = PG(unserialize_callback_func);
+121.1       |                                ^
+121.1 /tmp/pear/temp/igbinary/src/php7/igbinary.c:3135:70: warning: format '%s' expects argument of type 'char *', but argument 4 has type 'zend_string *' {aka 'struct _zend_string *'} [-Wformat=]
+121.1  3135 |                         php_error_docref(NULL, E_WARNING, "Function %s() hasn't defined the class it was called for", PG(unserialize_callback_func));
+121.1       |                                                                     ~^
+121.1       |                                                                      |
+121.1       |                                                                      char *
+121.2 make: *** [Makefile:208: src/php7/igbinary.lo] Error 1
+121.2 ERROR: `make -j6' failed
+------
+Dockerfile.ext:67
+--------------------
+  66 |     # identical for every version.
+  67 | >>> RUN install-php-extensions pdo_mysql mysqli gd intl zip exif bcmath opcache \
+  68 | >>>       mbstring soap xsl sockets pcntl shmop sysvsem calendar gettext gmp ldap pdo_pgsql igbinary
+  69 |     
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c install-php-extensions pdo_mysql mysqli gd intl zip exif bcmath opcache       mbstring soap xsl sockets pcntl shmop sysvsem calendar gettext gmp ldap pdo_pgsql igbinary" did not complete successfully: exit code: 1
+EXIT=1
