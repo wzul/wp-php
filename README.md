@@ -27,12 +27,22 @@ php.net, so the fix is available as soon as the source is.
 
 | tag | PHP | flavour |
 |---|---|---|
+| `8.6.0RC7` | 8.6.0RC7 | php-fpm (alpine), **pre-release** |
 | `8.5.12`, `8.5` | 8.5.12 | php-fpm (alpine) |
-| `8.4.27`, `8.4` | 8.4.27 | php-fpm (alpine) |
-| `8.3.36`, `8.3` | 8.3.36 | php-fpm (alpine) |
-| `8.2.35`, `8.2` | 8.2.35 | php-fpm (alpine) |
 
 Pin the full version in production; the minor tag moves with patch releases.
+
+Pre-release builds carry **only** the exact tag — there is no floating `8.6`, because a
+floating tag pointing at an RC would silently move anyone who pins it.
+
+`8.6.0RC7` is built on the official `php:8.6.0RC7-fpm-alpine`, which upstream ships as
+**ZTS** (thread-safe). 8.5 and earlier are NTS. Expect a rebuild at 8.6 GA, when the NTS
+base returns; treat the RC image as a test target, not as production baseline.
+
+No tagged release of APCu, phpredis, msgpack or Imagick compiles against 8.6 yet, so the RC
+build pins the development commits that do (`APCU_REF_86`, `REDIS_REF_86`, `MSGPACK_REF_86`,
+`IMAGICK_REF_86` in `.github/workflows/build.yml`). Replace each with the released tag once
+upstream publishes support.
 
 ## What's inside
 

@@ -16,9 +16,22 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE: ${{ github.repository_owner }}/wp-php
-  # Branches we no longer publish. 8.2 is security-only and reaches EOL on 31 Dec 2026, so it is
-  # dropped from the matrix now rather than left to rot. Add a branch here when it reaches EOL.
-  SKIP_BRANCHES: "8.2"
+  # Branches we publish. The fleet runs 8.5 in production and 8.6 ahead of GA; older branches
+  # are dropped rather than left to rot (8.2 is EOL 31 Dec 2026, 8.3/8.4 are not used anywhere).
+  SKIP_BRANCHES: "8.2 8.3 8.4"
+
+  # Pre-release versions published ahead of a php.net GA. php.net only lists GA branches in
+  # supported_versions, so an RC has to be named here until its branch appears there.
+  EXTRA_VERSIONS: "8.6.0RC7"
+
+  # No tagged release of these extensions compiles against PHP 8.6 yet (APCu changes the
+  # php_verror signature, Imagick still calls XtOffsetOf, msgpack's zval checks regressed).
+  # Pin the development commits that do compile, so an RC build is reproducible; replace each
+  # with the released tag once upstream publishes one that supports 8.6.
+  APCU_REF_86: fb2c942552a3f5dab7f4dea4afb5cf0831222c57
+  REDIS_REF_86: 5b60b125aba347159b0c9c319296fbb3c5ed9214
+  MSGPACK_REF_86: 4a6890850a9065f9a211951df4fc39c5a4c498ab
+  IMAGICK_REF_86: 55ed2e9fda264395636a2e27e51f31673f5566ab
 
 jobs:
   matrix:
@@ -52,6 +65,18 @@ jobs:
             versions=$(jq -c --arg v "$v" '. + [$v]' <<<"$versions")
           done
           [ "$versions" != "[]" ] || { echo "::error::no branches left to build - check SKIP_BRANCHES"; exit 1; }
+
+          # Pre-release builds (RC/beta). Skip any whose branch is already covered by a GA
+          # resolution, so the nightly run stops adding the RC the day 8.6 ships.
+          for x in ${EXTRA_VERSIONS:-}; do
+            xb=$(echo "$x" | cut -d. -f1,2)
+            if echo "$versions" | jq -e --arg p "$xb." 'any(.[]; startswith($p))' >/dev/null; then
+              echo "skip extra $x ($xb already resolved from php.net)"
+              continue
+            fi
+            echo "add extra $x"
+            versions=$(jq -c --arg v "$x" '. + [$v]' <<<"$versions")
+          done
           echo "resolved versions: $versions"
           echo "versions=$versions" >> "$GITHUB_OUTPUT"
 
@@ -78,12 +103,29 @@ jobs:
 
       - name: Build
         run: |
-          MINOR="${version%.*}"
+          # Pre-release versions must not move the floating minor tag (8.6 pointing at an RC
+          # would silently upgrade anyone who pins `:8.6`).
+          case "$version" in
+            *RC*|*rc*|*beta*|*alpha*) MINOR="" ;;
+            *) MINOR="${version%.*}" ;;
+          esac
+
+          # Extension sources: released tags normally, pinned dev commits for 8.6 pre-GA.
+          case "$version" in
+            8.6.*)
+              REFS="--build-arg APCU_REF=$APCU_REF_86 --build-arg REDIS_REF=$REDIS_REF_86                     --build-arg MSGPACK_REF=$MSGPACK_REF_86 --build-arg IMAGICK_REF=$IMAGICK_REF_86" ;;
+            *) REFS="" ;;
+          esac
+
+          TAGS="-t $REGISTRY/$IMAGE:${version}"
+          if [ -n "$MINOR" ]; then TAGS="$TAGS -t $REGISTRY/$IMAGE:${MINOR}"; fi
+
+          # shellcheck disable=SC2086
           docker build \
             -f fpm/Dockerfile.ext \
             --build-arg BASE="php:${version}-fpm-alpine" \
-            -t "$REGISTRY/$IMAGE:${version}" \
-            -t "$REGISTRY/$IMAGE:${MINOR}" \
+            $REFS \
+            $TAGS \
             fpm/
 
       - name: Prove the tag matches the source version
@@ -94,6 +136,9 @@ jobs:
 
       - name: Push
         run: |
-          MINOR="${version%.*}"
+          case "$version" in
+            *RC*|*rc*|*beta*|*alpha*) MINOR="" ;;
+            *) MINOR="${version%.*}" ;;
+          esac
           docker push "$REGISTRY/$IMAGE:${version}"
-          docker push "$REGISTRY/$IMAGE:${MINOR}"
+          if [ -n "$MINOR" ]; then docker push "$REGISTRY/$IMAGE:${MINOR}"; fi

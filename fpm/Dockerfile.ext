@@ -4,6 +4,15 @@
 ARG BASE=php:8.5-fpm-alpine
 FROM ${BASE}
 
+# Sumber setiap sambungan. Lalai = tag keluaran terkini (laluan produksi 8.5).
+# PHP 8.6 pra-GA memerlukan cabang pembangunan yang belum ditag, jadi workflow
+# menghantar REF khusus untuk versi itu. Setiap REF boleh jadi tag, cabang, atau
+# SHA commit — refs/heads/... dan refs/tags/... diselesaikan oleh GitHub.
+ARG APCU_REF=v5.1.28
+ARG REDIS_REF=6.3.0
+ARG MSGPACK_REF=v3.0.1
+ARG IMAGICK_REF=3.8.1
+
 COPY --from=mlocati/php-extension-installer:latest /usr/bin/install-php-extensions /usr/local/bin/
 
 # pecl.php.net is unreachable from this network, so the PECL extensions are
@@ -12,7 +21,7 @@ COPY --from=mlocati/php-extension-installer:latest /usr/bin/install-php-extensio
 RUN set -eux; \
     apk add --no-cache --virtual .extbuild $PHPIZE_DEPS imagemagick-dev libc-dev \
  && mkdir -p /tmp/b/apcu \
- && wget -qO- https://github.com/krakjoe/apcu/archive/refs/tags/v5.1.28.tar.gz | tar xz -C /tmp/b/apcu --strip-components=1 \
+ && wget -qO- "https://github.com/krakjoe/apcu/archive/${APCU_REF}.tar.gz" | tar xz -C /tmp/b/apcu --strip-components=1 \
  && cd /tmp/b/apcu \
  && phpize \
  && ./configure --with-php-config=/usr/local/bin/php-config --enable-apcu \
@@ -21,7 +30,7 @@ RUN set -eux; \
  && docker-php-ext-enable apcu \
  && cd / && rm -rf /tmp/b/apcu \
  && mkdir -p /tmp/b/redis \
- && wget -qO- https://github.com/phpredis/phpredis/archive/refs/tags/6.3.0.tar.gz | tar xz -C /tmp/b/redis --strip-components=1 \
+ && wget -qO- "https://github.com/phpredis/phpredis/archive/${REDIS_REF}.tar.gz" | tar xz -C /tmp/b/redis --strip-components=1 \
  && cd /tmp/b/redis \
  && phpize \
  && ./configure --with-php-config=/usr/local/bin/php-config \
@@ -30,7 +39,7 @@ RUN set -eux; \
  && docker-php-ext-enable redis \
  && cd / && rm -rf /tmp/b/redis \
  && mkdir -p /tmp/b/msgpack \
- && wget -qO- https://github.com/msgpack/msgpack-php/archive/refs/tags/v3.0.1.tar.gz | tar xz -C /tmp/b/msgpack --strip-components=1 \
+ && wget -qO- "https://github.com/msgpack/msgpack-php/archive/${MSGPACK_REF}.tar.gz" | tar xz -C /tmp/b/msgpack --strip-components=1 \
  && cd /tmp/b/msgpack \
  && phpize \
  && ./configure --with-php-config=/usr/local/bin/php-config \
@@ -39,7 +48,7 @@ RUN set -eux; \
  && docker-php-ext-enable msgpack \
  && cd / && rm -rf /tmp/b/msgpack \
  && mkdir -p /tmp/b/imagick \
- && wget -qO- https://github.com/Imagick/imagick/archive/refs/tags/3.8.1.tar.gz | tar xz -C /tmp/b/imagick --strip-components=1 \
+ && wget -qO- "https://github.com/Imagick/imagick/archive/${IMAGICK_REF}.tar.gz" | tar xz -C /tmp/b/imagick --strip-components=1 \
  && cd /tmp/b/imagick \
  && phpize \
  && ./configure --with-php-config=/usr/local/bin/php-config --with-imagick \
