@@ -1,0 +1,14 @@
+# Peringkat antara: imej PHP 8.5.13 yang dikompil dari tarball php.net,
+# dibersihkan sebelum lapisan sambungan ditambah.
+#
+# `fpm/Dockerfile` mengekalkan .build-deps selepas `make install` (1.96 GB).
+# Peringkat ini membuangnya selepas pustaka runtime dipasang, dan membuang
+# docker-php-ext-sodium.ini kerana sodium sudah dikompil ke dalam binari —
+# tanpanya setiap permintaan mencetak "Module sodium is already loaded".
+ARG BASE=flyops/php:8.5.13-base
+FROM ${BASE}
+
+RUN rm -f /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini \
+ && apk del .build-deps \
+ && php -v \
+ && php -m | tr '\n' ' '
