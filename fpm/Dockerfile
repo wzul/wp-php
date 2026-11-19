@@ -45,8 +45,10 @@ RUN apk add --no-cache ghostscript imagemagick msmtp \
       libxslt postgresql-libs sqlite-libs libsodium openldap libcurl zlib \
       gettext-libs gmp libstdc++
 
-RUN install-php-extensions redis apcu igbinary msgpack imagick \
- && rm -rf /tmp/php.tar.xz /usr/src/php-new \
+# Extensions are installed by the later Dockerfile.ext stage, which builds APCu, phpredis,
+# msgpack, Imagick and igbinary from pinned commits — no tagged release of several of them
+# compiles against 8.6. Installing them here too only duplicated the work and failed first.
+RUN rm -rf /tmp/php.tar.xz /usr/src/php-new \
  && gs --version \
  && php -r 'echo "BUILT " . PHP_VERSION . "\n";' \
  && php -m | tr '\n' ' '

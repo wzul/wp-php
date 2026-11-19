@@ -12,6 +12,7 @@ ARG APCU_REF=v5.1.28
 ARG REDIS_REF=6.3.0
 ARG MSGPACK_REF=v3.0.1
 ARG IMAGICK_REF=3.8.1
+ARG IGBINARY_REF=2b1f5d62e3037b07c2a46499ac32091cdb41fb40
 
 COPY --from=mlocati/php-extension-installer:latest /usr/bin/install-php-extensions /usr/local/bin/
 
@@ -56,6 +57,15 @@ RUN set -eux; \
  && make install \
  && docker-php-ext-enable imagick \
  && cd / && rm -rf /tmp/b/imagick \
+ && mkdir -p /tmp/b/igbinary \
+ && wget -qO- "https://github.com/igbinary/igbinary/archive/${IGBINARY_REF}.tar.gz" | tar xz -C /tmp/b/igbinary --strip-components=1 \
+ && cd /tmp/b/igbinary \
+ && phpize \
+ && ./configure --with-php-config=/usr/local/bin/php-config \
+ && make -j"$(nproc)" \
+ && make install \
+ && docker-php-ext-enable igbinary \
+ && cd / && rm -rf /tmp/b/igbinary \
  && apk del .extbuild \
  && php -m | tr '\n' ' '
 
@@ -65,7 +75,7 @@ RUN set -eux; \
 # an immediate fatal). Installing the full set is a no-op on the 8.5 base, so the list stays
 # identical for every version.
 RUN install-php-extensions pdo_mysql mysqli gd intl zip exif bcmath opcache \
-      mbstring soap xsl sockets pcntl shmop sysvsem calendar gettext gmp ldap pdo_pgsql igbinary
+      mbstring soap xsl sockets pcntl shmop sysvsem calendar gettext gmp ldap pdo_pgsql
 
 # wp-cli: cron runners and the panel call `wp cron event run`
 RUN wget -qO /usr/local/bin/wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \

@@ -32,6 +32,7 @@ env:
   REDIS_REF_86: 5b60b125aba347159b0c9c319296fbb3c5ed9214
   MSGPACK_REF_86: 4a6890850a9065f9a211951df4fc39c5a4c498ab
   IMAGICK_REF_86: 55ed2e9fda264395636a2e27e51f31673f5566ab
+  IGBINARY_REF_86: 2b1f5d62e3037b07c2a46499ac32091cdb41fb40
 
 jobs:
   matrix:
@@ -113,7 +114,7 @@ jobs:
           # Extension sources: released tags normally, pinned dev commits for 8.6 pre-GA.
           case "$version" in
             8.6.*)
-              REFS="--build-arg APCU_REF=$APCU_REF_86 --build-arg REDIS_REF=$REDIS_REF_86                     --build-arg MSGPACK_REF=$MSGPACK_REF_86 --build-arg IMAGICK_REF=$IMAGICK_REF_86" ;;
+              REFS="--build-arg APCU_REF=$APCU_REF_86 --build-arg REDIS_REF=$REDIS_REF_86                     --build-arg MSGPACK_REF=$MSGPACK_REF_86 --build-arg IMAGICK_REF=$IMAGICK_REF_86 --build-arg IGBINARY_REF=$IGBINARY_REF_86" ;;
             *) REFS="" ;;
           esac
 
